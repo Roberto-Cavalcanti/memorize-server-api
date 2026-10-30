@@ -1,0 +1,13 @@
+spring.application.name=memorize
+
+# Supabase PostgreSQL Connection Configuration (Connection Pooling)
+spring.datasource.url=jdbc:postgresql://HOST:PORTA/USER?sslmode=require&prepareThreshold=0
+spring.datasource.username=USER
+spring.datasource.password=PASSWORD
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+# JPA / Hibernate Configuration
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.hibernate.ddl-auto=none
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
