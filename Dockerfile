@@ -1,28 +1,19 @@
 # Build stage
-FROM eclipse-temurin:17-jdk-jammy AS build
+FROM maven:3.9.6-eclipse-temurin-17 AS build
 WORKDIR /app
 
-# Copy wrapper and pom.xml first for caching dependencies
-COPY mvnw ./
-COPY .mvn .mvn
+# Copy pom.xml and download dependencies
 COPY pom.xml ./
+RUN mvn dependency:go-offline -B
 
-# Download dependencies (makes builds faster if pom doesn't change)
-RUN ./mvnw dependency:go-offline -B
-
-# Copy source code
+# Copy source code and package
 COPY src ./src
-
-# Package the application
-RUN ./mvnw package -DskipTests
+RUN mvn package -DskipTests
 
 # Run stage
 FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
-
-# Copy the built jar from build stage
 COPY --from=build /app/target/*.jar app.jar
 
 EXPOSE 8080
-
 ENTRYPOINT ["java", "-jar", "app.jar"]
