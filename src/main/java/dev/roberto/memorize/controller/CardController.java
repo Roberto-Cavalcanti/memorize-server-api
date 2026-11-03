@@ -10,7 +10,8 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/decks/{deckId}/cards")
-@CrossOrigin(origins = "https://memorize-weld.vercel.app")
+@CrossOrigin(origins = "http://localhost:3000")
+//@CrossOrigin(origins = "https://memorize-weld.vercel.app")
 public class CardController {
 
     private final FlashcardService flashcardService;
@@ -34,6 +35,15 @@ public class CardController {
         }
         Card created = flashcardService.createCard(deckId, card);
         return ResponseEntity.ok(created);
+    }
+
+    @PutMapping("/reorder")
+    public ResponseEntity<Void> reorderCards(@PathVariable UUID deckId, @RequestBody List<UUID> cardIds) {
+        boolean success = flashcardService.reorderCards(deckId, cardIds);
+        if (success) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{cardId}")

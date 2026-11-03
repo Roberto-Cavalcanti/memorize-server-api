@@ -9,6 +9,7 @@ import java.util.UUID;
 
 @Repository
 public interface CardRepository extends JpaRepository<Card, UUID> {
+    List<Card> findAllByDeckIdOrderByPositionAsc(UUID deckId);
     List<Card> findAllByDeckId(UUID deckId);
     void deleteAllByDeckId(UUID deckId);
 }

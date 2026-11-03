@@ -47,12 +47,36 @@ public class FlashcardService {
 
     // Card operations
     public List<Card> getCardsByDeckId(UUID deckId) {
-        return cardRepository.findAllByDeckId(deckId);
+        return cardRepository.findAllByDeckIdOrderByPositionAsc(deckId);
     }
 
     public Card createCard(UUID deckId, Card card) {
         card.setDeckId(deckId);
+        List<Card> existingCards = cardRepository.findAllByDeckId(deckId);
+        card.setPosition(existingCards.size());
         return cardRepository.save(card);
+    }
+
+    @Transactional
+    public boolean reorderCards(UUID deckId, List<UUID> cardIds) {
+        if (!deckRepository.existsById(deckId)) {
+            return false;
+        }
+
+        List<Card> cards = cardRepository.findAllByDeckId(deckId);
+
+        // Update positions based on index in cardIds list
+        for (int i = 0; i < cardIds.size(); i++) {
+            UUID cardId = cardIds.get(i);
+            for (Card card : cards) {
+                if (card.getId().equals(cardId)) {
+                    card.setPosition(i);
+                    cardRepository.save(card);
+                    break;
+                }
+            }
+        }
+        return true;
     }
 
     public boolean deleteCard(UUID cardId) {

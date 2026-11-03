@@ -21,6 +21,9 @@ public class Card {
     @Column(name = "id_deck", nullable = false)
     private UUID deckId;
 
+    @Column(name="position")
+    private Integer position;
+
     public Card() {
     }
 
@@ -28,6 +31,13 @@ public class Card {
         this.deckId = deckId;
         this.front = front;
         this.back = back;
+    }
+
+    public Card(UUID deckId, String front, String back, Integer position) {
+        this.deckId = deckId;
+        this.front = front;
+        this.back = back;
+        this.position = position;
     }
 
     public UUID getId() {
@@ -68,5 +78,13 @@ public class Card {
 
     public void setBack(String back) {
         this.back = back;
+    }
+
+    public Integer getPosition() {
+        return position;
+    }
+
+    public void setPosition(Integer position) {
+        this.position = position;
     }
 }
