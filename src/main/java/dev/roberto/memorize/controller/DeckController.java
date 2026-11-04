@@ -36,6 +36,13 @@ public class DeckController {
         return flashcardService.createDeck(deck);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Deck> updateDeck(@PathVariable UUID id, @RequestBody Deck deckDetails) {
+        return flashcardService.updateDeck(id, deckDetails)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDeck(@PathVariable UUID id) {
         boolean deleted = flashcardService.deleteDeck(id);

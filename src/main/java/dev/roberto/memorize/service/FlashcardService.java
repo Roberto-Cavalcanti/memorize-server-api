@@ -35,6 +35,14 @@ public class FlashcardService {
         return deckRepository.save(deck);
     }
 
+    public Optional<Deck> updateDeck(UUID id, Deck deckDetails) {
+        return deckRepository.findById(id).map(deck -> {
+            deck.setTitle(deckDetails.getTitle());
+            deck.setDescription(deckDetails.getDescription());
+            return deckRepository.save(deck);
+        });
+    }
+
     @Transactional
     public boolean deleteDeck(UUID id) {
         if (!deckRepository.existsById(id)) {
@@ -85,5 +93,13 @@ public class FlashcardService {
         }
         cardRepository.deleteById(cardId);
         return true;
+    }
+
+    public Optional<Card> updateCard(UUID cardId, Card cardDetails) {
+        return cardRepository.findById(cardId).map(card -> {
+            card.setFront(cardDetails.getFront());
+            card.setBack(cardDetails.getBack());
+            return cardRepository.save(card);
+        });
     }
 }

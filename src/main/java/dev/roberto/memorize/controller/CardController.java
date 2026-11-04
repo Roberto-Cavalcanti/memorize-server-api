@@ -53,4 +53,14 @@ public class CardController {
         }
         return ResponseEntity.notFound().build();
     }
+
+    @PutMapping("/{cardId}")
+    public ResponseEntity<Card> updateCard(@PathVariable UUID deckId, @PathVariable UUID cardId, @RequestBody Card cardDetails) {
+        if (flashcardService.getDeckById(deckId).isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return flashcardService.updateCard(cardId, cardDetails)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
 }
