@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/decks/{deckId}/cards")
-@CrossOrigin(origins = "https://memorize-weld.vercel.app/")
+@CrossOrigin(origins = "https://memorize-weld.vercel.app")
 public class CardController {
 
     private final FlashcardService flashcardService;
