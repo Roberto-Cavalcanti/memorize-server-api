@@ -18,12 +18,21 @@ public class Deck {
     private String title;
     private String description;
 
+    @Column(name = "user_id", nullable = false)
+    private UUID userId;
+
     public Deck() {
     }
 
     public Deck(String title, String description) {
         this.title = title;
         this.description = description;
+    }
+
+    public Deck(String title, String description, UUID userId) {
+        this.title = title;
+        this.description = description;
+        this.userId = userId;
     }
 
     public UUID getId() {
@@ -56,5 +65,13 @@ public class Deck {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public UUID getUserId() {
+        return userId;
+    }
+
+    public void setUserId(UUID userId) {
+        this.userId = userId;
     }
 }

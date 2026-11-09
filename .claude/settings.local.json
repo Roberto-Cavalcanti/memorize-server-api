@@ -1,4 +1,10 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(./mvnw.cmd test *)",
+      "PowerShell(./mvnw test)"
+    ]
+  },
   "enabledMcpjsonServers": [
     "idea"
   ]

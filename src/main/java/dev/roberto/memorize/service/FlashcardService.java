@@ -23,20 +23,21 @@ public class FlashcardService {
     }
 
     // Deck operations
-    public List<Deck> getAllDecks() {
-        return deckRepository.findAll();
+    public List<Deck> getAllDecks(UUID userId) {
+        return deckRepository.findAllByUserId(userId);
     }
 
-    public Optional<Deck> getDeckById(UUID id) {
-        return deckRepository.findById(id);
+    public Optional<Deck> getDeckById(UUID id, UUID userId) {
+        return deckRepository.findByIdAndUserId(id, userId);
     }
 
-    public Deck createDeck(Deck deck) {
+    public Deck createDeck(Deck deck, UUID userId) {
+        deck.setUserId(userId);
         return deckRepository.save(deck);
     }
 
-    public Optional<Deck> updateDeck(UUID id, Deck deckDetails) {
-        return deckRepository.findById(id).map(deck -> {
+    public Optional<Deck> updateDeck(UUID id, Deck deckDetails, UUID userId) {
+        return deckRepository.findByIdAndUserId(id, userId).map(deck -> {
             deck.setTitle(deckDetails.getTitle());
             deck.setDescription(deckDetails.getDescription());
             return deckRepository.save(deck);
@@ -44,8 +45,9 @@ public class FlashcardService {
     }
 
     @Transactional
-    public boolean deleteDeck(UUID id) {
-        if (!deckRepository.existsById(id)) {
+    public boolean deleteDeck(UUID id, UUID userId) {
+        Optional<Deck> deck = deckRepository.findByIdAndUserId(id, userId);
+        if (deck.isEmpty()) {
             return false;
         }
         cardRepository.deleteAllByDeckId(id);
@@ -54,11 +56,17 @@ public class FlashcardService {
     }
 
     // Card operations
-    public List<Card> getCardsByDeckId(UUID deckId) {
+    public List<Card> getCardsByDeckId(UUID deckId, UUID userId) {
+        if (deckRepository.findByIdAndUserId(deckId, userId).isEmpty()) {
+            return List.of();
+        }
         return cardRepository.findAllByDeckIdOrderByPositionAsc(deckId);
     }
 
-    public Card createCard(UUID deckId, Card card) {
+    public Card createCard(UUID deckId, Card card, UUID userId) {
+        if (deckRepository.findByIdAndUserId(deckId, userId).isEmpty()) {
+            throw new IllegalArgumentException("Deck not found or access denied");
+        }
         card.setDeckId(deckId);
         List<Card> existingCards = cardRepository.findAllByDeckId(deckId);
         card.setPosition(existingCards.size());
@@ -66,8 +74,8 @@ public class FlashcardService {
     }
 
     @Transactional
-    public boolean reorderCards(UUID deckId, List<UUID> cardIds) {
-        if (!deckRepository.existsById(deckId)) {
+    public boolean reorderCards(UUID deckId, List<UUID> cardIds, UUID userId) {
+        if (deckRepository.findByIdAndUserId(deckId, userId).isEmpty()) {
             return false;
         }
 
@@ -87,19 +95,30 @@ public class FlashcardService {
         return true;
     }
 
-    public boolean deleteCard(UUID cardId) {
-        if (!cardRepository.existsById(cardId)) {
+    public boolean deleteCard(UUID cardId, UUID userId) {
+        Optional<Card> cardOpt = cardRepository.findById(cardId);
+        if (cardOpt.isEmpty()) {
+            return false;
+        }
+        Card card = cardOpt.get();
+        if (deckRepository.findByIdAndUserId(card.getDeckId(), userId).isEmpty()) {
             return false;
         }
         cardRepository.deleteById(cardId);
         return true;
     }
 
-    public Optional<Card> updateCard(UUID cardId, Card cardDetails) {
-        return cardRepository.findById(cardId).map(card -> {
-            card.setFront(cardDetails.getFront());
-            card.setBack(cardDetails.getBack());
-            return cardRepository.save(card);
-        });
+    public Optional<Card> updateCard(UUID cardId, Card cardDetails, UUID userId) {
+        Optional<Card> cardOpt = cardRepository.findById(cardId);
+        if (cardOpt.isEmpty()) {
+            return Optional.empty();
+        }
+        Card card = cardOpt.get();
+        if (deckRepository.findByIdAndUserId(card.getDeckId(), userId).isEmpty()) {
+            return Optional.empty();
+        }
+        card.setFront(cardDetails.getFront());
+        card.setBack(cardDetails.getBack());
+        return Optional.of(cardRepository.save(card));
     }
 }
